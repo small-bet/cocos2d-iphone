@@ -63,6 +63,22 @@ const NSInteger kSceneFade = 0xFADEFADE;
 	return [[[self alloc] initWithDuration:t scene:s] autorelease];
 }
 
++ (void)disableTouches {
+#ifdef __CC_PLATFORM_IOS
+	[[[CCDirector sharedDirector] touchDispatcher] setDispatchEvents: NO];
+#elif defined(__CC_PLATFORM_MAC)
+	[[[CCDirector sharedDirector] eventDispatcher] setDispatchEvents: NO];
+#endif
+}
+
++ (void)enableTouches {
+#ifdef __CC_PLATFORM_IOS
+	[[[CCDirector sharedDirector] touchDispatcher] setDispatchEvents: YES];
+#elif defined(__CC_PLATFORM_MAC)
+	[[[CCDirector sharedDirector] eventDispatcher] setDispatchEvents: YES];
+#endif
+}
+
 -(id) initWithDuration:(ccTime) t scene:(CCScene*)s
 {
 	NSAssert( s != nil, @"Argument scene must be non-nil");
@@ -78,6 +94,8 @@ const NSInteger kSceneFade = 0xFADEFADE;
 
 		NSAssert( inScene_ != outScene_, @"Incoming scene must be different from the outgoing scene" );
 
+        [CCTransitionScene disableTouches];
+        
 		[self sceneOrder];
 	}
 	return self;
@@ -128,6 +146,8 @@ const NSInteger kSceneFade = 0xFADEFADE;
 	sendCleanupToScene_ = [director sendCleanupToScene];
 
 	[director replaceScene: inScene_];
+    
+    [CCTransitionScene enableTouches];
 
 	// issue #267
 	[outScene_ setVisible:YES];
